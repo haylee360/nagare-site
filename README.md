@@ -10,6 +10,10 @@ _A portfolio website template, featuring simplicity, beauty and clarity._
 
 **Live Demo:** [nagare.angine.tech](https://nagare.angine.tech)
 
+## Note
+
+We're currently working on **refactoring** this template for better performance and ease of use.
+
 ## Features
 
 - Responsive Design
