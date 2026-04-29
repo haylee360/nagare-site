@@ -35,6 +35,13 @@ import ConnectContent from "../components/home/content/ConnectContent.astro";
     display: flex;
     flex-direction: column;
   }
+
+  /* snap targets */
+  .homepage-content > :global(*) {
+    scroll-snap-align: start;
+    scroll-snap-stop: always; /* forces stop at every slide, no skipping */
+  }
+
   main {
     position: relative;
     width: 100%;

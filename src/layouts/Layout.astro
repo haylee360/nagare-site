@@ -81,9 +81,10 @@ const showScrollIndicator =
         --timeline-line-color: #3333;
 
         --font-family-serif: "EB Garamond", Garamond, "Times New Roman", serif;
-        --font-family-sans: "Inter", -apple-system, BlinkMacSystemFont,
-          "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji",
-          "Segoe UI Emoji", "Segoe UI Symbol";
+        --font-family-sans:
+          "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji",
+          "Segoe UI Symbol";
       }
 
       html.dark {
@@ -134,6 +135,7 @@ const showScrollIndicator =
         overflow-y: auto;
         position: relative;
         overscroll-behavior-y: contain;
+        scroll-snap-type: y mandatory; /* ← add this */
       }
 
       .main-content {
@@ -194,6 +196,14 @@ const showScrollIndicator =
         text-decoration: underline;
         text-underline-offset: 0.2em;
       }
+
+      .footer-snap-section {
+        scroll-snap-align: start;
+        min-height: 100vh; /* gives it enough height to be a valid snap point */
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-end; /* pins footer to the bottom of the snap section */
+      }
     </style>
 
     <script>
@@ -207,7 +217,7 @@ const showScrollIndicator =
         const pageWrapper = document.querySelector(".page-wrapper");
         if (!pageWrapper) {
           console.error(
-            "Page wrapper element not found for IntersectionObserver."
+            "Page wrapper element not found for IntersectionObserver.",
           );
           return;
         }
@@ -228,12 +238,12 @@ const showScrollIndicator =
 
         const newObserver = new IntersectionObserver(
           observerCallback,
-          observerOptions
+          observerOptions,
         );
         currentIntersectionObserver = newObserver;
 
         const elementsToObserve = document.querySelectorAll(
-          ".scroll-reveal-animate"
+          ".scroll-reveal-animate",
         );
         elementsToObserve.forEach((el) => {
           newObserver.observe(el);
@@ -251,7 +261,7 @@ const showScrollIndicator =
         const pageWrapper = document.querySelector(".page-wrapper");
         if (!pageWrapper) {
           console.warn(
-            "Section animations setup skipped: page wrapper not found."
+            "Section animations setup skipped: page wrapper not found.",
           );
           return;
         }
@@ -262,7 +272,7 @@ const showScrollIndicator =
           sections.forEach((section) => {
             const sectionTitle = section.querySelector(".scroll-target-title");
             const sectionContent = section.querySelector(
-              ".scroll-target-content"
+              ".scroll-target-content",
             );
 
             ScrollTrigger.getAll().forEach((trigger) => {
@@ -353,8 +363,11 @@ const showScrollIndicator =
       <main class="main-content">
         <slot />
       </main>
-      <div class="some-empty-space" style="height: 20vh;"></div>
-      <Footer />
+      <div class="footer-snap-section">
+        <!-- ← wrap footer in a snap target -->
+        <div class="some-empty-space" style="height: 20vh;"></div>
+        <Footer />
+      </div>
       {showScrollIndicator && <ScrollIndicator />}
     </div>
   </body>
