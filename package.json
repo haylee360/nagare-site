@@ -5,15 +5,18 @@
   "scripts": {
     "dev": "astro dev",
     "build": "astro build",
-    "preview": "astro preview",
-    "astro": "astro"
+    "preview": "npm run build && wrangler dev",
+    "astro": "astro",
+    "deploy": "npm run build && wrangler deploy"
   },
   "dependencies": {
+    "@astrojs/cloudflare": "12",
     "@iconify-json/ri": "^1.2.5",
     "astro": "^5.7.3",
     "astro-icon": "^1.1.5",
     "gsap": "^3.12.7"
   },
   "devDependencies": {
+    "wrangler": "^4.86.0"
   }
 }
