@@ -3,6 +3,7 @@
 import DynamicBackground from "../components/DynamicBackground.astro";
 import ScrollIndicator from "../components/ScrollIndicator.astro";
 import Footer from "../components/Footer.astro";
+import HamburgerNav from "../components/common/HamburgerNav.astro";
 
 interface Props {
   title?: string;
@@ -362,6 +363,7 @@ const showScrollIndicator =
     </script>
   </head>
   <body>
+    <HamburgerNav />
     <div class="page-wrapper" class:list={[{ "snap-scroll": snapScroll }]}>
       <DynamicBackground />
       <main class="main-content">

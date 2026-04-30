@@ -1,0 +1,212 @@
+---
+// Component: src/components/common/HamburgerNav.astro
+
+const navLinks = [
+  { href: "/", label: "Home" },
+  { href: "/timeline", label: "Timeline" },
+  { href: "/projects", label: "Projects" },
+  { href: "/resume", label: "CV" },
+  { href: "/contact", label: "Contact" },
+];
+
+const currentPath = Astro.url.pathname;
+---
+
+<!-- Hamburger button -->
+<button
+  class="hamburger"
+  aria-label="Open navigation menu"
+  aria-expanded="false"
+  aria-controls="nav-overlay"
+>
+  <span class="hamburger-line"></span>
+  <span class="hamburger-line"></span>
+  <span class="hamburger-line"></span>
+</button>
+
+<!-- Nav overlay -->
+<nav id="nav-overlay" class="nav-overlay" aria-hidden="true">
+  <ul class="nav-links">
+    {
+      navLinks.map((link) => (
+        <li>
+          <a
+            href={link.href}
+            class:list={["nav-link", { active: currentPath === link.href }]}
+          >
+            {link.label}
+          </a>
+        </li>
+      ))
+    }
+  </ul>
+</nav>
+
+<style>
+  /* ── Hamburger button ── */
+  .hamburger {
+    position: fixed;
+    top: 1.5rem;
+    right: 1.5rem;
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 5px;
+    width: 2.5rem;
+    height: 2.5rem;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 0.25rem;
+
+    /* match the hero unblurFadeIn — starts invisible, fades in after a delay */
+    opacity: 0;
+    animation: unblurFadeIn 1.5s ease-out 1s forwards;
+  }
+
+  .hamburger-line {
+    display: block;
+    width: 26px;
+    height: 1.8px;
+    background-color: var(--text-color);
+    border-radius: 2px;
+    transition:
+      transform 0.3s ease,
+      opacity 0.3s ease;
+    transform-origin: center;
+  }
+
+  /* Animate lines into an X when open */
+  .hamburger[aria-expanded="true"] .hamburger-line:nth-child(1) {
+    transform: translateY(6.5px) rotate(45deg);
+  }
+  .hamburger[aria-expanded="true"] .hamburger-line:nth-child(2) {
+    opacity: 0;
+    transform: scaleX(0);
+  }
+  .hamburger[aria-expanded="true"] .hamburger-line:nth-child(3) {
+    transform: translateY(-6.5px) rotate(-45deg);
+  }
+
+  /* ── Nav overlay ── */
+  .nav-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--bg-color, #0a0a0a);
+    opacity: 0;
+    visibility: hidden;
+    transition:
+      opacity 0.4s ease,
+      visibility 0.4s ease;
+  }
+
+  .nav-overlay.is-open {
+    opacity: 0.97;
+    visibility: visible;
+  }
+
+  /* ── Nav links ── */
+  .nav-links {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2rem;
+    text-align: center;
+  }
+
+  .nav-link {
+    font-size: clamp(2rem, 2rem + 2vw, 4rem);
+    font-weight: 400;
+    color: var(--text-color);
+    text-decoration: none;
+    opacity: 0.5;
+    transition: opacity 0.2s ease;
+    letter-spacing: -0.02em;
+  }
+
+  .nav-link:hover,
+  .nav-link.active {
+    opacity: 1;
+  }
+
+  .nav-link.active {
+    cursor: default;
+    pointer-events: none;
+  }
+
+  /* ── Shared fade-in keyframe ── */
+  @keyframes unblurFadeIn {
+    0% {
+      filter: blur(32px);
+      opacity: 0;
+    }
+    10% {
+      filter: blur(28px);
+      opacity: 0.1;
+    }
+    50% {
+      filter: blur(4px);
+      opacity: 0.9;
+    }
+    100% {
+      filter: blur(0px);
+      opacity: 0.9;
+    }
+  }
+</style>
+
+<script>
+  function initNav() {
+    const hamburger = document.querySelector(
+      ".hamburger",
+    ) as HTMLButtonElement | null;
+    const overlay = document.getElementById(
+      "nav-overlay",
+    ) as HTMLElement | null;
+
+    if (!hamburger || !overlay) return;
+
+    function openMenu() {
+      hamburger!.setAttribute("aria-expanded", "true");
+      overlay!.classList.add("is-open");
+      overlay!.setAttribute("aria-hidden", "false");
+      document.body.style.overflow = "hidden"; // prevent background scroll
+    }
+
+    function closeMenu() {
+      hamburger!.setAttribute("aria-expanded", "false");
+      overlay!.classList.remove("is-open");
+      overlay!.setAttribute("aria-hidden", "true");
+      document.body.style.overflow = "";
+    }
+
+    function toggleMenu() {
+      const isOpen = hamburger!.getAttribute("aria-expanded") === "true";
+      isOpen ? closeMenu() : openMenu();
+    }
+
+    // Close on Escape key
+    function handleKeydown(e: KeyboardEvent) {
+      if (e.key === "Escape") closeMenu();
+    }
+
+    hamburger.addEventListener("click", toggleMenu);
+    document.addEventListener("keydown", handleKeydown);
+
+    // Close menu when a nav link is clicked
+    overlay.querySelectorAll(".nav-link").forEach((link) => {
+      link.addEventListener("click", closeMenu);
+    });
+  }
+
+  document.addEventListener("DOMContentLoaded", initNav);
+</script>
