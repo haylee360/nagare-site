@@ -239,7 +239,7 @@ const {
 <script>
   let currentIntersectionObserver: IntersectionObserver | null = null;
 
-  document.addEventListener("astro:page-load", () => {
+  document.addEventListener("DOMContentLoaded", () => {
     if (currentIntersectionObserver) {
       currentIntersectionObserver.disconnect();
     }
@@ -266,7 +266,7 @@ const {
 
     const newObserver = new IntersectionObserver(
       observerCallback,
-      observerOptions
+      observerOptions,
     );
 
     currentIntersectionObserver = newObserver;

@@ -61,11 +61,11 @@ function slugify(text: string): string {
     if (targetId) {
       setTimeout(() => {
         console.log(
-          "[projects.astro] Inside setTimeout. Attempting to find elements..."
+          "[projects.astro] Inside setTimeout. Attempting to find elements...",
         );
         const targetElement = document.getElementById(targetId);
         const pageWrapperElement = document.querySelector(
-          ".page-wrapper"
+          ".page-wrapper",
         ) as HTMLElement | null;
         console.log("[projects.astro] Found target element:", targetElement);
         console.log("[projects.astro] Found page wrapper:", pageWrapperElement);
@@ -89,7 +89,7 @@ function slugify(text: string): string {
         } else {
           if (!targetElement)
             console.warn(
-              `[projects.astro] Element with id "${targetId}" not found.`
+              `[projects.astro] Element with id "${targetId}" not found.`,
             );
           if (!pageWrapperElement)
             console.warn(`[projects.astro] .page-wrapper element not found.`);
@@ -105,7 +105,7 @@ function slugify(text: string): string {
     }
   }
 
-  document.addEventListener("astro:page-load", smoothScrollToTarget);
+  document.addEventListener("DOMContentLoaded", smoothScrollToTarget);
 </script>
 
 <style>

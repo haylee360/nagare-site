@@ -161,7 +161,7 @@ const currentYear = new Date().getFullYear();
       if (trigger.trigger === footerElement) {
         trigger.kill();
         console.log(
-          "Killed previous footer ScrollTrigger before setup (trigger match)"
+          "Killed previous footer ScrollTrigger before setup (trigger match)",
         ); // Debug log
       }
     });
@@ -181,10 +181,10 @@ const currentYear = new Date().getFullYear();
             end: "top 40%",
             scrub: 1,
           },
-        }
+        },
       );
       console.log(
-        "Setup new footer ScrollTrigger (using pageWrapper scroller)"
+        "Setup new footer ScrollTrigger (using pageWrapper scroller)",
       );
     } else {
       console.warn("Footer animation setup skipped: elements not found.");
@@ -203,7 +203,7 @@ const currentYear = new Date().getFullYear();
     setupFooterAnimation();
   });
 
-  document.addEventListener("astro:page-load", initializeFooter);
+  document.addEventListener("DOMContentLoaded", initializeFooter);
 </script>
 
 <script>
@@ -238,5 +238,5 @@ const currentYear = new Date().getFullYear();
     });
   }
 
-  document.addEventListener("astro:page-load", updateActiveFooterLink);
+  document.addEventListener("DOMContentLoaded", updateActiveFooterLink);
 </script>

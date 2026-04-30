@@ -1,5 +1,5 @@
 ---
-import { ClientRouter } from "astro:transitions";
+// import { ClientRouter } from "astro:transitions";
 import DynamicBackground from "../components/DynamicBackground.astro";
 import ScrollIndicator from "../components/ScrollIndicator.astro";
 import Footer from "../components/Footer.astro";
@@ -7,8 +7,9 @@ import Footer from "../components/Footer.astro";
 interface Props {
   title?: string;
   showIndicatorOverride?: boolean;
+  snapScroll?: boolean;
 }
-const { title, showIndicatorOverride } = Astro.props;
+const { title, showIndicatorOverride, snapScroll = false } = Astro.props;
 
 const pageTitle = `${title || "Homepage"} | Nagare`;
 
@@ -28,7 +29,7 @@ const showScrollIndicator =
     <link rel="icon" type="image/svg" href="/leaf.svg" />
     <meta name="generator" content={Astro.generator} />
     <title>{pageTitle}</title>
-    <ClientRouter />
+    <!-- <ClientRouter /> -->
     <script is:inline>
       const isDarkMode =
         window.matchMedia &&
@@ -135,7 +136,10 @@ const showScrollIndicator =
         overflow-y: auto;
         position: relative;
         overscroll-behavior-y: contain;
-        scroll-snap-type: y mandatory; /* ← add this */
+      }
+
+      .page-wrapper.snap-scroll {
+        scroll-snap-type: y mandatory;
       }
 
       .main-content {
@@ -209,7 +213,7 @@ const showScrollIndicator =
     <script>
       let currentIntersectionObserver: IntersectionObserver | null = null;
 
-      document.addEventListener("astro:page-load", () => {
+      document.addEventListener("DOMContentLoaded", () => {
         if (currentIntersectionObserver) {
           currentIntersectionObserver.disconnect();
         }
@@ -339,7 +343,7 @@ const showScrollIndicator =
         }
       }
 
-      document.addEventListener("astro:page-load", setupSectionAnimations);
+      document.addEventListener("DOMContentLoaded", setupSectionAnimations);
     </script>
     <script>
       const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
@@ -354,11 +358,11 @@ const showScrollIndicator =
 
       mediaQuery.addEventListener("change", checkAndApplyTheme);
 
-      document.addEventListener("astro:page-load", checkAndApplyTheme);
+      document.addEventListener("DOMContentLoaded", checkAndApplyTheme);
     </script>
   </head>
   <body>
-    <div class="page-wrapper">
+    <div class="page-wrapper" class:list={[{ "snap-scroll": snapScroll }]}>
       <DynamicBackground />
       <main class="main-content">
         <slot />

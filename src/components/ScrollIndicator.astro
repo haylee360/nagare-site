@@ -91,14 +91,14 @@
       clearTimeout(fadeInTimeout);
       fadeInTimeout = null;
       console.log(
-        "[ScrollIndicator] Cleared pending fade-in timeout during cleanup."
+        "[ScrollIndicator] Cleared pending fade-in timeout during cleanup.",
       );
     }
   }
 
   function setupIndicatorAnimation(
     indicator: HTMLElement,
-    pageWrapper: HTMLElement
+    pageWrapper: HTMLElement,
   ) {
     console.log("[ScrollIndicator] setupIndicatorAnimation CALLED.");
 
@@ -107,7 +107,7 @@
     const animation = gsap.fromTo(
       indicator,
       { opacity: 0.6 },
-      { opacity: 0, immediateRender: false }
+      { opacity: 0, immediateRender: false },
     );
     indicatorScrubTrigger = ScrollTrigger.create({
       trigger: pageWrapper,
@@ -156,18 +156,18 @@
 
   function setupClickListener(
     indicator: HTMLElement,
-    pageWrapper: HTMLElement
+    pageWrapper: HTMLElement,
   ) {
     if (clickListenerAttached) {
       console.log(
-        "[ScrollIndicator] Click listener already attached. Skipping."
+        "[ScrollIndicator] Click listener already attached. Skipping.",
       );
       return;
     }
     console.log("[ScrollIndicator] Attaching click listener.");
     indicator.addEventListener("click", () => {
       const currentOpacity = parseFloat(
-        window.getComputedStyle(indicator).opacity
+        window.getComputedStyle(indicator).opacity,
       );
       if (currentOpacity > 0.1) {
         gsap.to(pageWrapper, {
@@ -181,19 +181,19 @@
   }
 
   document.addEventListener(
-    "astro:page-load",
+    "DOMContentLoaded",
     () => {
       console.log(
-        `[ScrollIndicator] astro:page-load DETECTED on path: "${window.location.pathname}".`
+        `[ScrollIndicator] astro:page-load (now DOMContent) DETECTED on path: "${window.location.pathname}".`,
       );
 
       cleanupTriggers();
 
       const indicatorElement = document.querySelector(
-        "#scroll-indicator"
+        "#scroll-indicator",
       ) as HTMLElement | null;
       const pageWrapperElement = document.querySelector(
-        ".page-wrapper"
+        ".page-wrapper",
       ) as HTMLElement | null;
 
       if (indicatorElement && pageWrapperElement) {
@@ -203,6 +203,6 @@
         clickListenerAttached = false;
       }
     },
-    { once: false }
+    { once: false },
   );
 </script>

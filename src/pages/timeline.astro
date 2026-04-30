@@ -14,7 +14,7 @@ let initialSortOrder = "newest";
 let initialFilteredEvents = allTimelineEvents.sort((a, b) =>
   initialSortOrder === "newest"
     ? new Date(b.date).getTime() - new Date(a.date).getTime()
-    : new Date(a.date).getTime() - new Date(b.date).getTime()
+    : new Date(a.date).getTime() - new Date(b.date).getTime(),
 );
 ---
 
@@ -73,7 +73,7 @@ let initialFilteredEvents = allTimelineEvents.sort((a, b) =>
     if (!timelineContainer || !allEventsData) {
       console.warn(
         "[Timeline Script] renderTimeline ABORT - Missing container or data. Container:",
-        timelineContainer
+        timelineContainer,
       );
       return;
     }
@@ -85,7 +85,7 @@ let initialFilteredEvents = allTimelineEvents.sort((a, b) =>
     let filteredEvents = allEventsData;
     if (currentFilter !== "all") {
       filteredEvents = allEventsData.filter(
-        (event) => event.category === currentFilter
+        (event) => event.category === currentFilter,
       );
     }
 
@@ -139,7 +139,7 @@ let initialFilteredEvents = allTimelineEvents.sort((a, b) =>
           reinitFooterAnimation();
           timelineContainer.removeEventListener(
             "transitionend",
-            handleTransitionEnd
+            handleTransitionEnd,
           );
           timelineContainer.removeAttribute("data-transition-listener-added");
         }
@@ -164,7 +164,7 @@ let initialFilteredEvents = allTimelineEvents.sort((a, b) =>
   function setupEventListeners() {
     if (!categoryTabs) {
       console.error(
-        "[Timeline Script] Cannot setup listeners: categoryTabs not found."
+        "[Timeline Script] Cannot setup listeners: categoryTabs not found.",
       );
       return;
     }
@@ -215,7 +215,7 @@ let initialFilteredEvents = allTimelineEvents.sort((a, b) =>
 
     if (!timelineContainer || !categoryTabs || categoryTabs.length === 0) {
       console.error(
-        "[Timeline Script] initializeTimeline ABORT - Essential elements not found in DOM."
+        "[Timeline Script] initializeTimeline ABORT - Essential elements not found in DOM.",
       );
       return;
     }
@@ -228,7 +228,7 @@ let initialFilteredEvents = allTimelineEvents.sort((a, b) =>
     setupEventListeners();
   }
 
-  document.addEventListener("astro:page-load", () => {
+  document.addEventListener("DOMContentLoaded", () => {
     initializeTimeline();
   });
 </script>
