@@ -1,6 +1,8 @@
 ---
 // Content for the "Meet me!" section
 import Button from "../../common/Button.astro";
+import { Image } from "astro:assets";
+import headshotImage from "../../../assets/images/echo_headshot_square.jpeg";
 
 const resumeUrl = "/resume";
 ---
@@ -34,10 +36,11 @@ const resumeUrl = "/resume";
     <!-- Right column: headshot + social icons -->
     <div class="about-image-col">
       <div class="headshot-wrapper">
-        <img
-          src="/images/echo_headshot_square.jpeg"
+        <Image
+          src={headshotImage}
           alt="Haylee Oyler"
           class="headshot"
+          loading="lazy"
         />
       </div>
 
@@ -157,9 +160,23 @@ const resumeUrl = "/resume";
 
   .headshot-wrapper {
     width: 100%;
+    max-width: 400px;
     aspect-ratio: 1 / 1;
     overflow: hidden;
     border-radius: 4px; /* subtle rounding — remove for a hard edge */
+  }
+
+  /* Constrain image size on smaller screens */
+  @media (max-width: 760px) {
+    .headshot-wrapper {
+      max-width: 280px;
+    }
+  }
+
+  @media (max-width: 600px) {
+    .headshot-wrapper {
+      max-width: 240px;
+    }
   }
 
   .headshot {

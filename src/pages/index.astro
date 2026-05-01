@@ -8,7 +8,7 @@ import HighlightsUpdatesContent from "../components/home/content/HighlightsUpdat
 import ConnectContent from "../components/home/content/ConnectContent.astro";
 ---
 
-<Layout title="Homepage" snapScroll={true}>
+<Layout title="Homepage" snapScroll={true} sectionAnimationMode="one-way">
   <main class="homepage-content">
     <Hero />
 
@@ -39,7 +39,7 @@ import ConnectContent from "../components/home/content/ConnectContent.astro";
   /* snap targets */
   .homepage-content > :global(*) {
     scroll-snap-align: start;
-    scroll-snap-stop: always; /* forces stop at every slide, no skipping */
+    scroll-snap-stop: always;
   }
 
   main {

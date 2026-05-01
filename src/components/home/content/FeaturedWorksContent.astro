@@ -7,7 +7,7 @@ import FeaturedProjectCard from "../FeaturedProjectCard.astro"; // Import the ne
 import Button from "../../common/Button.astro";
 
 const featuredProjects: ProjectDataItem[] = allProjectsData.filter(
-  (project) => project.isFeatured
+  (project) => project.isFeatured,
 );
 const projectsUrl = "/projects";
 

@@ -9,14 +9,8 @@ interface Props {
   title?: string;
   showIndicatorOverride?: boolean;
   snapScroll?: boolean;
-  sectionAnimationMode?: "one-way" | "two-way-scrubbed";
 }
-const {
-  title,
-  showIndicatorOverride,
-  snapScroll = false,
-  sectionAnimationMode = "one-way",
-} = Astro.props;
+const { title, showIndicatorOverride, snapScroll = false } = Astro.props;
 
 const pageTitle = `${title || "Homepage"} | Nagare`;
 
@@ -280,11 +274,6 @@ const showScrollIndicator =
           return;
         }
 
-        const useTwoWayScrubbed = Boolean(
-          (window as Window & { __useTwoWayScrubbed?: boolean })
-            .__useTwoWayScrubbed,
-        );
-
         const sections = document.querySelectorAll(".section-wrapper");
 
         if (sections.length > 0) {
@@ -306,102 +295,42 @@ const showScrollIndicator =
 
             if (sectionTitle) {
               gsap.set(sectionTitle, { filter: "blur(8px)", opacity: 0 });
-              if (useTwoWayScrubbed) {
-                gsap
-                  .timeline({
-                    scrollTrigger: {
-                      trigger: section,
-                      scroller: pageWrapper,
-                      start: "top 85%",
-                      end: "bottom top",
-                      scrub: 1,
-                      invalidateOnRefresh: true,
-                    },
-                  })
-                  .to(sectionTitle, {
-                    filter: "blur(0px)",
-                    opacity: 1,
-                    ease: "none",
-                    duration: 0.6,
-                  })
-                  .to(sectionTitle, {
-                    filter: "blur(8px)",
-                    opacity: 0,
-                    ease: "none",
-                    duration: 0.4,
-                  });
-              } else {
-                gsap.to(sectionTitle, {
-                  filter: "blur(0px)",
-                  opacity: 1,
-                  ease: "sine.out",
-                  duration: 0.8,
-                  scrollTrigger: {
-                    trigger: section,
-                    scroller: pageWrapper,
-                    start: "top center",
-                    toggleActions: "play none none reverse",
-                    invalidateOnRefresh: true,
-                  },
-                });
-              }
+              gsap.to(sectionTitle, {
+                filter: "blur(0px)",
+                opacity: 1,
+                ease: "sine.out",
+                duration: 0.8,
+                scrollTrigger: {
+                  trigger: section,
+                  scroller: pageWrapper,
+                  start: "top 75%",
+                  toggleActions: "play none none reverse",
+                  invalidateOnRefresh: true,
+                },
+              });
             }
 
             if (sectionContent) {
               gsap.set(sectionContent, { opacity: 0, y: 30 });
-              if (useTwoWayScrubbed) {
-                gsap
-                  .timeline({
-                    scrollTrigger: {
-                      trigger: section,
-                      scroller: pageWrapper,
-                      start: "top 85%",
-                      end: "bottom 30%",
-                      scrub: 1,
-                      invalidateOnRefresh: true,
-                    },
-                  })
-                  .to(sectionContent, {
-                    opacity: 1,
-                    y: 0,
-                    ease: "none",
-                    duration: 0.5,
-                  })
-                  .to(sectionContent, {
-                    opacity: 0,
-                    y: -30,
-                    ease: "none",
-                    duration: 0.5,
-                  });
-              } else {
-                gsap.to(sectionContent, {
-                  opacity: 1,
-                  y: 0,
-                  ease: "power1.inOut",
-                  duration: 0.9,
-                  scrollTrigger: {
-                    trigger: section,
-                    scroller: pageWrapper,
-                    start: "top center",
-                    toggleActions: "play none none reverse",
-                    invalidateOnRefresh: true,
-                  },
-                });
-              }
+              gsap.to(sectionContent, {
+                opacity: 1,
+                y: 0,
+                ease: "power1.inOut",
+                duration: 0.9,
+                scrollTrigger: {
+                  trigger: section,
+                  scroller: pageWrapper,
+                  start: "top 70%",
+                  toggleActions: "play none none reverse",
+                  invalidateOnRefresh: true,
+                },
+              });
             }
           });
         }
       }
 
       document.addEventListener("DOMContentLoaded", setupSectionAnimations);
-    </script>
-    <script
-      is:inline
-      define:vars={{
-        useTwoWayScrubbed: sectionAnimationMode === "two-way-scrubbed",
-      }}
-    >
-      window.__useTwoWayScrubbed = useTwoWayScrubbed;
     </script>
     <script>
       const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");

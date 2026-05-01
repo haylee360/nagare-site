@@ -8,12 +8,33 @@
 </section>
 <style>
   .about-section {
-    padding: 10vh 3vw;
-    min-height: 70vh;
-    height: 70vh;
+    /* Mobile: compact padding, natural height */
+    padding: 1vh 2vw;
+    min-height: auto;
+  }
 
-  @media screen and (max-width: 800px){
-    padding: 3vh 3vw;
+  /* Tablet: ~768px and up */
+  @media (min-width: 768px) {
+    .about-section {
+      padding: 1vh 4vw;
+      min-height: 65vh;
+    }
+  }
+
+  /* Laptop: ~1024px and up */
+  @media (min-width: 1024px) {
+    .about-section {
+      padding: 10vh 6vw;
+      min-height: 65vh;
+    }
+  }
+
+  /* Desktop: ~1440px and up */
+  @media (min-width: 1500px) {
+    .about-section {
+      padding: 15vh 5vw;
+      min-height: 70vh;
+    }
   }
 </style>
 
@@ -30,6 +51,7 @@
     line-height: 1.6;
     max-width: 90ch;
     justify-self: center;
+    padding: 1vh 1vw;
   }
 
   .about-section .about-content p {
@@ -68,5 +90,4 @@
   .about-section .about-nav-list li {
     margin-bottom: 1rem;
   }
-
 </style>
