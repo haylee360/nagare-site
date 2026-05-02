@@ -59,7 +59,7 @@ const currentYear = new Date().getFullYear();
     background-color: var(--footer-bg);
     color: var(--footer-text);
     padding: 4rem 10%;
-    min-height: 40vh;
+    min-height: 30vh;
     display: flex;
     align-items: center;
     position: relative;
@@ -132,7 +132,7 @@ const currentYear = new Date().getFullYear();
 
   @media (min-width: 768px) {
     .site-footer {
-      padding: 4rem 20%;
+      padding: 2rem 10%;
     }
     .footer-content {
       flex-wrap: nowrap;
@@ -179,14 +179,14 @@ const currentYear = new Date().getFullYear();
         footerElement,
         { opacity: 0, y: 15 },
         {
-          opacity: 1,
+          opacity: 0.95,
           y: 0,
           ease: "power1.in",
           scrollTrigger: {
             trigger: footerElement,
             scroller: pageWrapper,
             start: "top 95%",
-            end: "top 40%",
+            end: "top 70%",
             scrub: 1,
           },
         },

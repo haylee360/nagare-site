@@ -5,8 +5,8 @@
 <div id="scroll-indicator" class="scroll-indicator">
   <div class="indicator-content">
     <svg
-      width="32"
-      height="32"
+      width="64"
+      height="64"
       viewBox="0 0 24 24"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
@@ -43,14 +43,14 @@
     opacity: 0;
     cursor: pointer;
     z-index: 10;
-    transition: opacity 0.5s ease-out;
+    transition: opacity 0.4s ease-out;
   }
 
   .indicator-content {
     display: flex;
     align-items: center;
     gap: 0em;
-    animation: float 3s ease-in-out infinite;
+    animation: float 1.5s ease-in-out infinite;
   }
 
   .scroll-indicator svg {
@@ -136,7 +136,7 @@
     };
 
     gsap.set(indicator, { opacity: 0 });
-    if (pageWrapper.scrollTop < 10) showIndicator(3000);
+    if (pageWrapper.scrollTop < 10) showIndicator(2000);
 
     indicatorCallbackTrigger = ScrollTrigger.create({
       trigger: pageWrapper,
@@ -147,7 +147,7 @@
         if (pageWrapper.scrollTop < 5) {
           hideIndicator();
         } else {
-          showIndicator(3000);
+          showIndicator(2000);
         }
       },
     });
