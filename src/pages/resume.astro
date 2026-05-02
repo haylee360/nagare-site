@@ -13,7 +13,7 @@ import Button from "../components/common/Button.astro";
 <SubPageLayout title="Curriculum Vitae">
   <Button
     href="/public/haylee-oyler-CV.pdf"
-    text="Download CV PDF"
+    text="Download PDF"
     download="haylee-oyler-CV.pdf"
     icon="↓"
     iconPosition="left"
@@ -23,15 +23,15 @@ import Button from "../components/common/Button.astro";
   />
   <div class="resume-columns-wrapper">
     <div class="resume-main-column">
-      <Profile />
+      <!-- <Profile /> -->
       <Education />
-      <Awards />
-      <Experience />
       <Projects />
+      <Experience />
     </div>
     <div class="resume-sidebar">
       <Skills />
-      <ContactInfo />
+      <Awards />
+      <!-- <ContactInfo /> -->
     </div>
   </div>
 </SubPageLayout>

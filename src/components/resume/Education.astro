@@ -7,17 +7,30 @@
   <div class="education-entry">
     <div class="header">
       <span class="institution"
-        ><strong>Example University</strong><br /> B.S. in Computer Science, <br
+        ><strong>University of California, Santa Barbara</strong><br /> Master's of
+        Environmental Data Science &emsp; <wbr /> GPA: <strong>4.0</strong><br
         />
-        <em>Third-year Undergraduate</em></span
-      >
-      <span class="date">September 2022 – Present</span>
+      </span>
+      <span class="date">June 2025</span>
     </div>
     <p>
-      GPA: <strong>3.8</strong> &emsp; <wbr /> Average Score: <strong
-        >92.5</strong
-      > &emsp; <wbr />
-      Major Rank: <strong>Top 10%</strong>
+      <strong><em>Highlighted Coursework:</em></strong> Geospatial Analysis and Remote
+      Sensing, Machine Learning, Databases and Data Management, Environmental Modeling,
+      Ethics and Bias in Environmental Data Science
+    </p>
+  </div>
+  <div class="education-entry">
+    <div class="header">
+      <span class="institution"
+        ><strong>University of California, Berkeley</strong><br /> B.S. in Environmental
+        Science, <em>Honors</em> &emsp; <wbr /> GPA: <strong>3.8</strong><br />
+      </span>
+      <span class="date">May 2021</span>
+    </div>
+    <p>
+      <strong><em>Highlighted Coursework:</em></strong> Quantitative Aspects of Global
+      Environmental Problems, Environmental Economics, Culture and Resource Management,
+      Climate and Resource Policy, Energy and Society
     </p>
   </div>
 </section>
@@ -39,7 +52,7 @@
     align-items: baseline;
     flex-wrap: wrap; /* Allow wrapping on smaller screens */
     margin-bottom: 0.8rem;
-    font-size: 1.2rem;
+    font-size: 1.3rem;
   }
   .education-entry .institution {
     margin-right: 1rem; /* Space between institution and date */
@@ -54,14 +67,19 @@
     list-style: none;
     padding-left: 0;
     margin-left: 1rem; /* Indent details slightly */
-    font-size: 1.1rem;
+    font-size: 1.2rem;
     line-height: 1.6;
   }
   .education-entry .details li {
     margin-bottom: 0.3rem;
   }
 
-  @media (max-width: 600px) {
+  .education-entry p {
+    font-size: 1.2rem;
+    line-height: 1.6;
+  }
+
+  @media (max-width: 700px) {
     .education-entry .header {
       flex-direction: column; /* Stack header items vertically */
       align-items: flex-start;
