@@ -1,0 +1,51 @@
+---
+import Layout from "../../../layouts/Layout.astro";
+import { getCollection } from "astro:content";
+
+export async function getStaticPaths() {
+  const posts = await getCollection("blog");
+  const tagSet = new Set<string>();
+  posts.forEach((p: any) => {
+    (p.data.tags || []).forEach((t: string) => tagSet.add(t));
+  });
+  return Array.from(tagSet).map((t) => ({ params: { tag: t } }));
+}
+
+const { tag } = Astro.params;
+const posts = await getCollection("blog");
+const filtered = posts
+  .filter((p: any) => (p.data.tags || []).includes(tag))
+  .filter((p: any) => !p.data.draft)
+  .sort(
+    (a: any, b: any) =>
+      new Date(b.data.pubDate).getTime() - new Date(a.data.pubDate).getTime(),
+  );
+---
+
+<Layout title={`Tag: ${tag}`}>
+  <main class="tag-page">
+    <h1>Tag: {tag}</h1>
+    <ul>
+      {
+        filtered.map((post: any) => (
+          <li>
+            <a href={`/blog/${post.slug}`}>
+              <strong>{post.data.title}</strong>
+              <div class="meta">{post.data.pubDate}</div>
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+  </main>
+</Layout>
+
+<style>
+  .tag-page ul {
+    list-style: none;
+    padding: 0;
+  }
+  .tag-page li {
+    margin-bottom: 1rem;
+  }
+</style>

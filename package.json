@@ -20,5 +20,6 @@
     "@fontsource-variable/sora": "^5.2.8"
   },
   "devDependencies": {
+    "@astrojs/mdx": "^4.3.14"
   }
 }

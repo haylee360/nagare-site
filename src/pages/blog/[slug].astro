@@ -1,0 +1,50 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import { getCollection, getEntryBySlug } from "astro:content";
+
+export async function getStaticPaths() {
+  const posts = await getCollection("blog");
+  return posts
+    .filter((p: any) => !p.data.draft)
+    .map((p: any) => ({ params: { slug: p.slug } }));
+}
+
+const { slug } = Astro.params;
+const post = await getEntryBySlug("blog", slug);
+if (!post) {
+  throw new Error("Post not found");
+}
+const { Content } = await post.render();
+---
+
+<Layout title={post.data.title}>
+  <article class="blog-post">
+    <header>
+      <h1>{post.data.title}</h1>
+      <time datetime={post.data.pubDate}>{post.data.pubDate}</time>
+      {
+        post.data.tags ? (
+          <div class="post-tags">
+            {post.data.tags.map((t: any) => (
+              <a class="tag-link" href={`/blog/tags/${encodeURIComponent(t)}`}>
+                {t}
+              </a>
+            ))}
+          </div>
+        ) : null
+      }
+    </header>
+
+    <Content />
+  </article>
+</Layout>
+
+<style>
+  .blog-post {
+    max-width: 880px;
+    margin: 0 auto;
+  }
+  .blog-post header {
+    margin-bottom: 1.5rem;
+  }
+</style>

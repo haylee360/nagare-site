@@ -1,0 +1,245 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import { getCollection } from "astro:content";
+
+const posts = await getCollection("blog");
+const published = posts
+  .filter((p: any) => !p.data.draft)
+  .sort(
+    (a: any, b: any) =>
+      new Date(b.data.pubDate).getTime() - new Date(a.data.pubDate).getTime(),
+  );
+
+// Build tag counts for sidebar
+const tagMap = new Map<string, number>();
+published.forEach((p: any) => {
+  (p.data.tags || []).forEach((t: string) => {
+    tagMap.set(t, (tagMap.get(t) || 0) + 1);
+  });
+});
+const tags = Array.from(tagMap.entries()).sort((a, b) => b[1] - a[1]);
+---
+
+<Layout title="Blog">
+  <main class="blog-listing layout-grid">
+    <header class="blog-header">
+      <h1>Blog</h1>
+      <p class="lead">Latest posts and updates.</p>
+    </header>
+
+    <section class="cards-column">
+      <div id="posts-grid" class="posts-grid">
+        {
+          published.map((post: any) => (
+            <article
+              class="post-card"
+              data-tags={(post.data.tags || []).join("|")}
+              data-slug={post.slug}
+            >
+              <a class="card-link" href={`/blog/${post.slug}`}>
+                <h2 class="post-title">{post.data.title}</h2>
+                {post.data.description ? (
+                  <p class="post-excerpt">{post.data.description}</p>
+                ) : null}
+                <div class="post-meta">{post.data.pubDate}</div>
+              </a>
+              <div class="card-tags">
+                {(post.data.tags || []).map((t: any) => (
+                  <button class="tag-pill" data-tag={t} type="button">
+                    {t}
+                  </button>
+                ))}
+              </div>
+            </article>
+          ))
+        }
+      </div>
+    </section>
+
+    <aside class="tag-sidebar">
+      <div class="tag-sidebar-inner">
+        <h3>Tags</h3>
+        <ul class="tag-list">
+          <li>
+            <button class="tag-filter all active" data-tag="">All</button>
+          </li>
+          {
+            tags.map(([tag, count]) => (
+              <li>
+                <button class="tag-filter" data-tag={tag} type="button">
+                  {tag} <span class="count">{count}</span>
+                </button>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+    </aside>
+  </main>
+</Layout>
+
+<style>
+  .layout-grid {
+    display: grid;
+    grid-template-columns: 1fr 280px;
+    gap: 2.5rem;
+  }
+  @media (max-width: 900px) {
+    .layout-grid {
+      grid-template-columns: 1fr 220px;
+    }
+  }
+  @media (max-width: 760px) {
+    .layout-grid {
+      grid-template-columns: 1fr;
+    }
+    .tag-sidebar {
+      order: 2;
+    }
+  }
+
+  .blog-header {
+    grid-column: 1 / -1;
+  }
+  .posts-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+  }
+  @media (max-width: 760px) {
+    .posts-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .post-card {
+    border: 1px solid var(--card-border-color);
+    padding: 1rem;
+    border-radius: 8px;
+    background: var(--bg-color);
+  }
+  .card-link {
+    color: inherit;
+    text-decoration: none;
+    display: block;
+  }
+  .post-title {
+    margin: 0 0 0.5rem 0;
+  }
+  .post-excerpt {
+    margin: 0 0 0.75rem 0;
+    color: var(--text-muted);
+  }
+  .post-meta {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+  }
+  .card-tags {
+    margin-top: 0.75rem;
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+  .tag-pill {
+    background: transparent;
+    border: 1px solid var(--button-border-color);
+    padding: 0.25rem 0.5rem;
+    border-radius: 999px;
+    cursor: pointer;
+  }
+
+  .tag-sidebar {
+    position: sticky;
+    top: 6rem;
+    height: fit-content;
+  }
+  .tag-sidebar-inner {
+    border-left: 1px solid var(--card-border-color);
+    padding-left: 1rem;
+  }
+  .tag-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  .tag-filter {
+    background: transparent;
+    border: none;
+    text-align: left;
+    padding: 0.25rem;
+    cursor: pointer;
+  }
+  .tag-filter.active {
+    font-weight: 700;
+  }
+  .tag-filter .count {
+    opacity: 0.7;
+    margin-left: 0.35rem;
+    font-size: 0.9rem;
+  }
+
+  .post-card.hidden {
+    display: none !important;
+  }
+</style>
+
+<script>
+  // Client-side tag filtering with deep-link support
+  document.addEventListener("DOMContentLoaded", () => {
+    const postsGrid = document.getElementById("posts-grid");
+    const tagButtons = Array.from(
+      document.querySelectorAll(".tag-filter"),
+    ) as HTMLButtonElement[];
+    const pillButtons = Array.from(
+      document.querySelectorAll(".tag-pill"),
+    ) as HTMLButtonElement[];
+
+    function setActiveTag(tag: string) {
+      // update active class on sidebar
+      tagButtons.forEach((b) =>
+        b.classList.toggle(
+          "active",
+          (b.getAttribute("data-tag") || "") === tag,
+        ),
+      );
+      // filter cards
+      const cards = Array.from(
+        document.querySelectorAll(".post-card"),
+      ) as HTMLElement[];
+      cards.forEach((card) => {
+        const tags = (card.getAttribute("data-tags") || "")
+          .split("|")
+          .filter(Boolean);
+        if (!tag || tags.includes(tag)) {
+          card.classList.remove("hidden");
+        } else {
+          card.classList.add("hidden");
+        }
+      });
+      // update url param
+      const url = new URL(window.location.href);
+      if (tag) url.searchParams.set("tag", tag);
+      else url.searchParams.delete("tag");
+      history.replaceState({}, "", url.toString());
+    }
+
+    tagButtons.forEach((b) =>
+      b.addEventListener("click", () =>
+        setActiveTag(b.getAttribute("data-tag") || ""),
+      ),
+    );
+    pillButtons.forEach((b) =>
+      b.addEventListener("click", () =>
+        setActiveTag(b.getAttribute("data-tag") || ""),
+      ),
+    );
+
+    // Initialize from URL
+    const params = new URLSearchParams(window.location.search);
+    const startTag = params.get("tag") || "";
+    setActiveTag(startTag);
+  });
+</script>

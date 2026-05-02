@@ -1,0 +1,40 @@
+---
+import Layout from "../../../layouts/Layout.astro";
+import { getCollection } from "astro:content";
+
+const posts = await getCollection("blog");
+const tagMap = new Map();
+posts.forEach((p: any) => {
+  (p.data.tags || []).forEach((t: string) => {
+    tagMap.set(t, (tagMap.get(t) || 0) + 1);
+  });
+});
+const tags = Array.from(tagMap.entries()).sort((a, b) => b[1] - a[1]);
+---
+
+<Layout title="Tags">
+  <main class="tag-index">
+    <h1>Tags</h1>
+    <ul>
+      {
+        tags.map(([tag, count]) => (
+          <li>
+            <a href={`/blog/tags/${encodeURIComponent(tag)}`}>
+              {tag} ({count})
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+  </main>
+</Layout>
+
+<style>
+  .tag-index ul {
+    list-style: none;
+    padding: 0;
+  }
+  .tag-index li {
+    margin-bottom: 0.5rem;
+  }
+</style>
