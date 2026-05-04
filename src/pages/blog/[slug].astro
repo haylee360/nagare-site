@@ -1,5 +1,5 @@
 ---
-import Layout from "../../layouts/Layout.astro";
+import BlogLayout from "../../layouts/BlogLayout.astro";
 import { getCollection, getEntryBySlug } from "astro:content";
 
 export async function getStaticPaths() {
@@ -17,7 +17,7 @@ if (!post) {
 const { Content } = await post.render();
 ---
 
-<Layout title={post.data.title}>
+<BlogLayout title={post.data.title}>
   <article class="blog-post">
     <header>
       <h1>{post.data.title}</h1>
@@ -25,10 +25,16 @@ const { Content } = await post.render();
       {
         post.data.tags ? (
           <div class="post-tags">
-            {post.data.tags.map((t: any) => (
-              <a class="tag-link" href={`/blog/tags/${encodeURIComponent(t)}`}>
-                {t}
-              </a>
+            {post.data.tags.map((t: any, index: number) => (
+              <>
+                <a
+                  class="tag-link"
+                  href={`/blog/tags/${encodeURIComponent(t)}`}
+                >
+                  {t}
+                </a>
+                {index < post.data.tags.length - 1 ? ", " : null}
+              </>
             ))}
           </div>
         ) : null
@@ -37,14 +43,21 @@ const { Content } = await post.render();
 
     <Content />
   </article>
-</Layout>
+</BlogLayout>
 
 <style>
   .blog-post {
-    max-width: 880px;
-    margin: 0 auto;
+    max-width: none;
+    margin: 0;
   }
   .blog-post header {
     margin-bottom: 1.5rem;
+  }
+  .post-tags {
+    display: block;
+    margin-top: 0.35rem;
+  }
+  .tag-link {
+    color: var(--text-color);
   }
 </style>

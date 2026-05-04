@@ -10,12 +10,14 @@ interface Props {
   showIndicatorOverride?: boolean;
   snapScroll?: boolean;
   sectionAnimationMode?: "one-way" | "two-way-scrubbed";
+  mainContentClass?: string;
 }
 const {
   title,
   showIndicatorOverride,
   snapScroll = false,
   sectionAnimationMode = "one-way",
+  mainContentClass,
 } = Astro.props;
 
 const pageTitle = `${title || "Homepage"} | Nagare`;
@@ -124,6 +126,7 @@ const showScrollIndicator =
 
       html {
         background-color: var(--bg-color);
+        font-size: 16px;
       }
 
       html,
@@ -157,6 +160,10 @@ const showScrollIndicator =
       @media (min-width: 768px) {
         .main-content {
           padding: 0 10vw;
+        }
+
+        .main-content.blog-layout {
+          padding: 0 5vw;
         }
       }
     </style>
@@ -423,14 +430,20 @@ const showScrollIndicator =
     <HamburgerNav />
     <div class="page-wrapper" class:list={[{ "snap-scroll": snapScroll }]}>
       <DynamicBackground />
-      <main class="main-content">
+      <main class:list={["main-content", mainContentClass]}>
         <slot />
       </main>
-      <div class="footer-snap-section">
-        <!-- ← wrap footer in a snap target -->
-        <div class="some-empty-space" style="height: 20vh;"></div>
-        <Footer />
-      </div>
+      {
+        snapScroll ? (
+          <div class="footer-snap-section">
+            <!-- wrap footer in a snap target for snap-scroll pages -->
+            <div class="some-empty-space" style="height: 20vh;"></div>
+            <Footer />
+          </div>
+        ) : (
+          <Footer />
+        )
+      }
       {showScrollIndicator && <ScrollIndicator />}
     </div>
   </body>

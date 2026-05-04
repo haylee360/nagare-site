@@ -66,6 +66,7 @@ The data used in this model comes courtesy of [Dr. Erin Satterthwaite](https://
 
 ## The Coding Breakdown
 
+
 ```python
 # Load basic libraries
 import pandas as pd
@@ -87,6 +88,7 @@ from sklearn.preprocessing import StandardScaler
 
 ### Import Data and Explore
 
+
 ```python
 # Import data
 train_df = pd.read_csv("~/MEDS/website/haylee360.github.io/posts/2025-03-30-kaggle/data/train.csv")
@@ -98,6 +100,7 @@ test_df = test_df.rename(columns={'TA1':'TA1.x'})
 # Remove NA column from training data
 train_df = train_df.drop(columns='Unnamed: 12')
 ```
+
 
 ```python
 # Get a feel for feature summary stats
@@ -300,10 +303,12 @@ train_df.describe()
 </tbody>
 </table>
 
+
 ```python
 # Check NAs
 train_df.isna().sum()
 ```
+
 
 ```
 id                   0
@@ -327,16 +332,18 @@ DIC                  0
 dtype: int64
 ```
 
+
 ```python
 # Visualize feature relationships
 sns.pairplot(train_df, y_vars=['DIC'], x_vars= train_df.columns[1:-1], diag_kind='kde')
 ```
 
-<Image src="/blog/so-you-want-to-win-a-kaggle-competition/cell-6-output-1.png" alt="" width={1000} height={800} style="max-width: 100%; height: auto; display: block; margin: 1.5rem auto;" />
+<Image src="/blog/so-you-want-to-win-a-kaggle-competition/cell-6-output-1.png" alt="" width={800} height={500} style="max-width: 100%; height: auto; display: block; margin: 1.5rem auto;" />
 
 ### Model Selection: XGB with Hyperoptimization
 
 The relationships look mostly linear, but we’re working with a lot of features. I figured gradient boosting would be a good approach.
+
 
 ```python
 # Assign features
@@ -352,6 +359,7 @@ X_test_scaled = pd.DataFrame(scaler.transform(X_test), columns=X_test.columns)
 ```
 
 ### Define Objective Function
+
 
 ```python
 # Set up kfold cross validation
@@ -383,6 +391,7 @@ def objective(params):
 
 ### Create Domain space
 
+
 ```python
 # Create hyperparameter space
 space = {
@@ -399,6 +408,7 @@ space = {
 ```
 
 ### Run Optimization Algorithm
+
 
 ```python
 # Run hyperopt
@@ -417,6 +427,7 @@ best_params = fmin(
 
 Now that we’ve optimized all of our relevant parameters, we can train our XGB model. We use `**best_params` to unpack the best parameters from before and initialize an `XGBRegressor` model.
 
+
 ```python
 # Convert int hyperparameters to fix type error
 best_params["n_estimators"] = int(best_params["n_estimators"])
@@ -431,6 +442,7 @@ xgb_hyper.fit(X_scaled, y)
 # Predict on test data
 y_pred_hyper = xgb_hyper.predict(X_test_scaled)
 ```
+
 
 ```python
 # Get feature importance
@@ -518,6 +530,7 @@ feat_imp_hyper
 
 Now that we’ve generated our predictions on the test data, all we need to do is add those to their associated ID’s in the `test_df` and export to csv for submission to the competition.
 
+
 ```python
 # Add DIC to test dataset
 test_df['DIC'] = y_pred_hyper
@@ -562,6 +575,7 @@ submission.head()
 </tbody>
 </table>
 
+
 ```python
 # Export for submission
 submission.to_csv('submission.csv', index=False)
@@ -574,6 +588,8 @@ And just like that, you can have a competition-winning machine learning model! A
 ## Citation
 
 BibTeX citation:
+
+
 ```bibtex
 @online{oyler2025,
   author = {Oyler, Haylee},
@@ -585,8 +601,12 @@ BibTeX citation:
 
 ```
 
-For attribution, please cite this work as:Oyler H. So You Want to Win a Kaggle
-Competition? 30 Mar 2025. Available: https://haylee360.github.io/posts/2025-03-30-kaggle/
+For attribution, please cite this work as:
+
+Oyler H. So You Want to Win a Kaggle
+Competition? 30 Mar 2025. Available:
+
+https://haylee360.github.io/posts/2025-03-30-kaggle/
 
 ## References
 

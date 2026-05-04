@@ -1,0 +1,82 @@
+---
+import Layout from "./Layout.astro";
+
+interface Props {
+  title: string;
+}
+
+const { title } = Astro.props;
+---
+
+<Layout title={title} mainContentClass="blog-layout">
+  <div class="blog-main">
+    <slot />
+  </div>
+</Layout>
+
+<style>
+  .blog-main {
+    width: 100%;
+    padding: 2rem 0;
+    font-size: 18px;
+    line-height: 1.75;
+    box-sizing: border-box;
+  }
+
+  .blog-main :global(.blog-post) {
+    max-width: none;
+    margin: 0;
+  }
+
+  .blog-main :global(.blog-post header) {
+    margin-bottom: 1.5rem;
+  }
+
+  .blog-main :global(.post-tags) {
+    display: block;
+    margin-top: 0.35rem;
+  }
+
+  .blog-main :global(.tag-link) {
+    color: var(--text-color);
+  }
+
+  .blog-main :global(p),
+  .blog-main :global(li) {
+    line-height: 1.75;
+  }
+
+  .blog-main :global(img) {
+    max-width: 100%;
+    height: auto;
+  }
+
+  .blog-main :global(pre) {
+    overflow-x: auto;
+    padding: 1.25rem 1.5rem;
+    border: 1px solid var(--button-border-color);
+    border-radius: 12px;
+    background: var(--footer-bg);
+    color: var(--text-color);
+    font-size: 0.92rem;
+    line-height: 1.6;
+  }
+
+  .blog-main :global(pre code) {
+    background: transparent;
+    color: inherit;
+    padding: 0;
+    border-radius: 0;
+    font-family: inherit;
+    font-size: inherit;
+  }
+
+  .blog-main :global(p code),
+  .blog-main :global(li code) {
+    padding: 0.1rem 0.35rem;
+    border-radius: 4px;
+    background: var(--footer-bg);
+    color: var(--text-color);
+    font-size: 0.95em;
+  }
+</style>
