@@ -100,8 +100,29 @@
     color: var(--text-muted); /* Slightly muted color for skill items */
   }
 
+  @media (min-width: 900px) and (max-width: 1200px) {
+    .scroll-reveal-animate {
+      opacity: 1 !important;
+      filter: none !important;
+      transform: none !important;
+      transition: none !important;
+      will-change: auto;
+    }
+  }
+
   .skills-entry p {
     font-size: 1.2rem;
     line-height: 1.6;
+  }
+
+  @media (max-width: 700px) {
+    .award-entry .header {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+    .award-entry .date {
+      margin-top: 0.3rem;
+      padding-left: 0;
+    }
   }
 </style>

@@ -1,0 +1,600 @@
+---
+title: "So You Want to Win a Kaggle Competition?"
+pubDate: "2025-03-30"
+description: "Building an Extreme Gradient Boosted Model to Predict Seawater Chemistry"
+author: "Haylee Oyler"
+tags: ["Machine-Learning", "Python", "MEDS"]
+draft: false
+---
+
+import { Image } from 'astro:assets';
+
+Are growing in prevalence and efficacy in environmental science. What began in 1949 as an attempt to write a computer program that could play checkers [[1](#ref-Widerhold1992)] has grown into one of the fastest developing fields today. Machine learning is used to across multiple disciplines—from image recognition models designed to improve the speed of medical diagnoses [[2](#ref-PintoCoehlo2023)] to the program that filters your spam from your normal inbox [[3](#ref-Dada2019)]—machine learning’s reach has spread far and wide. The study of our natural world and its processes is no exception.
+
+Machine learning has allowed major advances in the environmental field as well. As data collection techniques only become more refined, frequent, and numerous, we need processing techniques that can match the scale of this data.
+
+As part of a final project in [Dr. Matteo Robbin’s](https://bren.ucsb.edu/people/mateo-robbins) [Machine Learning in Environmental Science](https://bren.ucsb.edu/courses/eds-232), my class was tasked with optimizing a machine learning model that would predict dissolved inorganic carbon content (DIC) in a sample of seawater based on a number of other associated characteristics. This was held as part of a [kaggle competiton](https://www.kaggle.com/competitions/eds-232-cal-cofi-ocean-chemistry-prediction-2025/overview) where the evaluation metric was root mean squared error (rmse). The winner was determined based on which model had the smallest rmse on the private leaderboard. Overall, this assesses how accurate each model is at predicting DIC when generalizing to unseen data.
+
+I will walk through my winning model for this competition: **an extreme gradient boosted model (XGB) with bayesian hyperoptimization of parameters**.
+
+## The Model Breakdown
+
+### eXtreme Gradient Boosting
+
+Let’s go word by word through an extreme gradient boosted model and explain each piece.
+
+- **Boosted**: Boosting is an [ensemble method](https://www.ibm.com/think/topics/ensemble-learning) in which multiple weak [decision trees](https://scikit-learn.org/stable/modules/tree.html) are trained sequentially. In simpler terms, you train many “short” decision trees on top of each other and you use the residual error from the previous tree to train the following tree. This allows the model to iteratively optimize performance without a tendency to overfit.
+- **Gradient**: Gradient refers to the idea of [gradient descent](https://developers.google.com/machine-learning/crash-course/linear-regression/gradient-descent), which is the optimization technique used to minimize the loss function. This starts to get into the math weeds, so I’ll link some resources for those who’d like more detail [[4](#ref-Kwiatkowski2023)] [[5](#ref-Google2024)]. But at it’s most conceptual, let’s imagine our parameter space as standing on top of a hill. If we look down, there are numerous different slopes and valleys that mark the terrain between the peak and the bottom of the hill. This “terrain variation” can be thought of as the unique parameter space of our model. Now, imagine I were to drop 100 ping pong balls from the top of this hill and I want to know which ball reached the bottom the fastest. The fastest ping pong boll can be thought of as akin to the gradient of our loss function. That is, gradient descent finds the direction of steepest increase to minimize the loss function.
+- **Extreme**: Now that we have a conceptual understanding of gradient descent, there are many different ways you can set up your how your model finds the most optimum gradient. The term “extreme” comes from the popular [xgboost](https://xgboost.readthedocs.io/en/release_3.0.0/) library that is designed to be especially efficient and flexible. There are other types of gradient descent, like batch gradient descent or stochastic gradient descent [[6](#ref-IBM2025)], but XGB is a very common method due to its high performance, built-in [regularization](https://www.ibm.com/think/topics/regularization#:~:text=Regularization%20is%20a%20set%20of,overfitting%20in%20machine%20learning%20models.), and [parallel computing](https://www.ibm.com/think/topics/parallel-computing) capabilities.
+
+### hyperopt: Bayesian Hyperoptimization
+
+Now that we have our model itself established, let’s talk about how I decided to select parameters for the model with [hyperopt](https://hyperopt.github.io/hyperopt/). hyperopt is a python library that uses bayesian optimization to find the best parameters. It has three main parts: an objective function, a domain space, and a search algorithm [[7](#ref-Banerjee2020)].
+
+- **Bayesian optimization**: This is another area that gets into the weeds [[8](#ref-Noguiera2014)], but it can be thought of as a probabilistic, model-based technique to minimize a function. It’s quicker than a random search of parameters because it uses the [posterior distribution](https://www.statisticshowto.com/posterior-distribution-probability/) to establish which parameter spaces are most worth exploring. In this way, the future parameter combinations are informed by the previous ones.
+  - **Objective function**: This is the function we want our bayesian model to minimize. This function will take our input domain space and output the validation metric (in our case, [RMSE](https://statisticsbyjim.com/regression/root-mean-square-error-rmse/)). The objective function for this model is the XGB model discussed above. We want to minimize our error given that exact model construction, so naturally, we optimize our hyperparameters based on that model.
+  - **Domain space**: The set of hyperparameters and their input values over which we want to search.
+  - **Optimization algorithm**: The optimization algorithm used in this model is [Tree of Parzen Estimators (TPE)](https://towardsdatascience.com/building-a-tree-structured-parzen-estimator-from-scratch-kind-of-20ed31770478/). This is where the Bayesian optimization discussed above actually happens.
+
+
+
+At the end of the hyperopt process, we have a set of parameters that returns the smallest RMSE. Then, we can train our model on the best parameters.
+
+### Data
+
+The data used in this model comes courtesy of [Dr. Erin Satterthwaite](https://scripps.ucsd.edu/profiles/esatterthwaite) at the [California Cooperative Oceanic Fisheries Investigations(CalCOFI)](https://calcofi.org/)
+
+#### Metadata
+
+- `Lat_Dec`: Observed Latitude in decimal degrees
+- `Lon_Dec`: Observed Longitude in decimal degrees
+- `NO2uM`: Micromoles Nitrite per liter of seawater
+- `NO3uM`: Micromoles Nitrate per liter of seawater
+- `NH3uM`: Micromoles Ammonia per liter of seawater
+- `R_TEMP`: Reported (Potential) Temperature in degrees Celsius
+- `R_Depth`: Reported Depth (from pressure) in meters
+- `R_Sal`: Reported Salinity (from Specific Volume Anomoly, M³/Kg)
+- `R_DYNHT`: Reported Dynamic Height in units of dynamic meters (work per unit mass)
+- `R_Nuts`: Reported Ammonium concentration
+- `R_Oxy_micromol.Kg`: Reported Oxygen micromoles/kilogram
+- `PO4uM`: Micromoles Phosphate per liter of seawater
+- `SiO3uM`: Micromoles Silicate per liter of seawater
+- `TA1.x`: Total Alkalinity micromoles per kilogram solution
+- `Salinity1`: Salinity (Practical Salinity Scale 1978)
+- `Temperature_degC`: Water temperature in degrees Celsius
+- `DIC`: Dissolved Inorganic Carbon micromoles per kilogram solution
+
+## The Coding Breakdown
+
+```python
+# Load basic libraries
+import pandas as pd
+import seaborn as sns
+import numpy as np
+import matplotlib.pyplot as plt
+import statistics as stats
+import time
+
+# XGB libraries
+from sklearn.model_selection import train_test_split,RandomizedSearchCV, cross_val_score, KFold
+import xgboost as xgb
+from hyperopt import hp, fmin, tpe, Trials, STATUS_OK
+from xgboost import XGBRegressor
+from sklearn.metrics import mean_squared_error
+from scipy.stats import uniform, randint
+from sklearn.preprocessing import StandardScaler
+```
+
+### Import Data and Explore
+
+```python
+# Import data
+train_df = pd.read_csv("~/MEDS/website/haylee360.github.io/posts/2025-03-30-kaggle/data/train.csv")
+test_df = pd.read_csv("~/MEDS/website/haylee360.github.io/posts/2025-03-30-kaggle/data/test.csv")
+
+# Fix column name error
+test_df = test_df.rename(columns={'TA1':'TA1.x'})
+
+# Remove NA column from training data
+train_df = train_df.drop(columns='Unnamed: 12')
+```
+
+```python
+# Get a feel for feature summary stats
+train_df.describe()
+```
+
+<table class="dataframe caption-top table table-sm table-striped small" data-border="1" data-quarto-postprocess="true">
+<thead>
+<tr>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">id</th>
+<th data-quarto-table-cell-role="th">Lat_Dec</th>
+<th data-quarto-table-cell-role="th">Lon_Dec</th>
+<th data-quarto-table-cell-role="th">NO2uM</th>
+<th data-quarto-table-cell-role="th">NO3uM</th>
+<th data-quarto-table-cell-role="th">NH3uM</th>
+<th data-quarto-table-cell-role="th">R_TEMP</th>
+<th data-quarto-table-cell-role="th">R_Depth</th>
+<th data-quarto-table-cell-role="th">R_Sal</th>
+<th data-quarto-table-cell-role="th">R_DYNHT</th>
+<th data-quarto-table-cell-role="th">R_Nuts</th>
+<th data-quarto-table-cell-role="th">R_Oxy_micromol.Kg</th>
+<th data-quarto-table-cell-role="th">PO4uM</th>
+<th data-quarto-table-cell-role="th">SiO3uM</th>
+<th data-quarto-table-cell-role="th">TA1.x</th>
+<th data-quarto-table-cell-role="th">Salinity1</th>
+<th data-quarto-table-cell-role="th">Temperature_degC</th>
+<th data-quarto-table-cell-role="th">DIC</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td data-quarto-table-cell-role="th">count</td>
+<td>1454.000000</td>
+<td>1454.000000</td>
+<td>1454.000000</td>
+<td>1454.000000</td>
+<td>1454.000000</td>
+<td>1454.000000</td>
+<td>1454.000000</td>
+<td>1454.000000</td>
+<td>1454.000000</td>
+<td>1454.000000</td>
+<td>1454.000000</td>
+<td>1454.000000</td>
+<td>1454.000000</td>
+<td>1454.000000</td>
+<td>1454.000000</td>
+<td>1454.000000</td>
+<td>1454.000000</td>
+<td>1454.000000</td>
+</tr>
+<tr>
+<td data-quarto-table-cell-role="th">mean</td>
+<td>727.500000</td>
+<td>33.271315</td>
+<td>-120.216359</td>
+<td>0.062252</td>
+<td>18.885812</td>
+<td>0.085062</td>
+<td>10.882772</td>
+<td>193.451857</td>
+<td>224.527854</td>
+<td>0.374726</td>
+<td>0.085062</td>
+<td>146.507682</td>
+<td>1.644869</td>
+<td>29.171437</td>
+<td>2256.054409</td>
+<td>33.764094</td>
+<td>10.901307</td>
+<td>2150.468820</td>
+</tr>
+<tr>
+<td data-quarto-table-cell-role="th">std</td>
+<td>419.877958</td>
+<td>0.891261</td>
+<td>1.719873</td>
+<td>0.284517</td>
+<td>14.414059</td>
+<td>0.190922</td>
+<td>3.702193</td>
+<td>347.486135</td>
+<td>88.427864</td>
+<td>0.365226</td>
+<td>0.190922</td>
+<td>92.421033</td>
+<td>1.024450</td>
+<td>28.628682</td>
+<td>35.215125</td>
+<td>0.398409</td>
+<td>3.684964</td>
+<td>113.163645</td>
+</tr>
+<tr>
+<td data-quarto-table-cell-role="th">min</td>
+<td>1.000000</td>
+<td>30.417500</td>
+<td>-124.000670</td>
+<td>0.000000</td>
+<td>0.000000</td>
+<td>0.000000</td>
+<td>1.250000</td>
+<td>1.000000</td>
+<td>44.900000</td>
+<td>0.003000</td>
+<td>0.000000</td>
+<td>0.000000</td>
+<td>0.170000</td>
+<td>0.000000</td>
+<td>2181.570000</td>
+<td>32.840000</td>
+<td>1.520000</td>
+<td>1948.850000</td>
+</tr>
+<tr>
+<td data-quarto-table-cell-role="th">25%</td>
+<td>364.250000</td>
+<td>32.654580</td>
+<td>-121.844853</td>
+<td>0.000000</td>
+<td>1.877500</td>
+<td>0.000000</td>
+<td>8.185000</td>
+<td>30.000000</td>
+<td>149.475000</td>
+<td>0.107000</td>
+<td>0.000000</td>
+<td>59.170572</td>
+<td>0.490000</td>
+<td>3.585000</td>
+<td>2230.032500</td>
+<td>33.417000</td>
+<td>8.215000</td>
+<td>2025.818652</td>
+</tr>
+<tr>
+<td data-quarto-table-cell-role="th">50%</td>
+<td>727.500000</td>
+<td>33.420670</td>
+<td>-120.025080</td>
+<td>0.014000</td>
+<td>22.600000</td>
+<td>0.010000</td>
+<td>9.900000</td>
+<td>101.000000</td>
+<td>202.000000</td>
+<td>0.293500</td>
+<td>0.010000</td>
+<td>136.267250</td>
+<td>1.820000</td>
+<td>24.150000</td>
+<td>2244.020000</td>
+<td>33.746800</td>
+<td>9.910000</td>
+<td>2166.630000</td>
+</tr>
+<tr>
+<td data-quarto-table-cell-role="th">75%</td>
+<td>1090.750000</td>
+<td>34.150520</td>
+<td>-118.630000</td>
+<td>0.050000</td>
+<td>31.500000</td>
+<td>0.090000</td>
+<td>13.667500</td>
+<td>252.000000</td>
+<td>299.075000</td>
+<td>0.577750</td>
+<td>0.090000</td>
+<td>244.636050</td>
+<td>2.560000</td>
+<td>45.675000</td>
+<td>2279.175000</td>
+<td>34.149450</td>
+<td>13.667500</td>
+<td>2252.657500</td>
+</tr>
+<tr>
+<td data-quarto-table-cell-role="th">max</td>
+<td>1454.000000</td>
+<td>34.663330</td>
+<td>-117.308600</td>
+<td>8.190000</td>
+<td>42.000000</td>
+<td>2.750000</td>
+<td>22.750000</td>
+<td>3595.000000</td>
+<td>485.900000</td>
+<td>3.226000</td>
+<td>2.750000</td>
+<td>332.347700</td>
+<td>4.280000</td>
+<td>175.200000</td>
+<td>2433.710000</td>
+<td>34.676000</td>
+<td>22.750000</td>
+<td>2367.800000</td>
+</tr>
+</tbody>
+</table>
+
+```python
+# Check NAs
+train_df.isna().sum()
+```
+
+```
+id                   0
+Lat_Dec              0
+Lon_Dec              0
+NO2uM                0
+NO3uM                0
+NH3uM                0
+R_TEMP               0
+R_Depth              0
+R_Sal                0
+R_DYNHT              0
+R_Nuts               0
+R_Oxy_micromol.Kg    0
+PO4uM                0
+SiO3uM               0
+TA1.x                0
+Salinity1            0
+Temperature_degC     0
+DIC                  0
+dtype: int64
+```
+
+```python
+# Visualize feature relationships
+sns.pairplot(train_df, y_vars=['DIC'], x_vars= train_df.columns[1:-1], diag_kind='kde')
+```
+
+<Image src="/blog/so-you-want-to-win-a-kaggle-competition/cell-6-output-1.png" alt="" width={1000} height={800} style="max-width: 100%; height: auto; display: block; margin: 1.5rem auto;" />
+
+### Model Selection: XGB with Hyperoptimization
+
+The relationships look mostly linear, but we’re working with a lot of features. I figured gradient boosting would be a good approach.
+
+```python
+# Assign features
+X = train_df.drop(columns=['id', 'DIC'], axis=1)
+y = train_df['DIC']
+X_test = test_df.drop(columns=['id'], axis=1) 
+
+# Scale the data
+scaler = StandardScaler()
+X_scaled = pd.DataFrame(scaler.fit_transform(X), columns=X.columns)
+# For predictions later on...
+X_test_scaled = pd.DataFrame(scaler.transform(X_test), columns=X_test.columns)
+```
+
+### Define Objective Function
+
+```python
+# Set up kfold cross validation
+kf = KFold(n_splits=5, shuffle=True, random_state=808)
+
+# Define objective function to minimize
+def objective(params):
+    model = XGBRegressor(
+        n_estimators=int(params["n_estimators"]),
+        learning_rate=params["learning_rate"],
+        max_depth=int(params["max_depth"]),
+        min_child_weight=params["min_child_weight"],
+        subsample=params["subsample"],
+        colsample_bytree=params["colsample_bytree"],
+        gamma=params["gamma"],
+        reg_alpha=params["reg_alpha"],
+        reg_lambda=params["reg_lambda"],
+        random_state=808
+    )
+    
+    # Perform cross-validation
+    scores = -cross_val_score(model, X_scaled, y, cv=kf, scoring='neg_root_mean_squared_error', n_jobs=-1)
+
+    # Average RMSE across folds
+    rmse = np.mean(scores)
+
+    return {'loss': rmse, 'status': STATUS_OK}
+```
+
+### Create Domain space
+
+```python
+# Create hyperparameter space
+space = {
+    "n_estimators": hp.quniform("n_estimators", 100, 1200, 10),
+    "learning_rate": hp.uniform("learning_rate", 0.005, 0.3),
+    "max_depth": hp.quniform("max_depth", 3, 20, 1),
+    "min_child_weight": hp.uniform("min_child_weight", 1, 10),
+    "subsample": hp.uniform("subsample", 0.5, 1.0),
+    "colsample_bytree": hp.uniform("colsample_bytree", 0.5, 1.0),
+    "gamma": hp.uniform("gamma", 0, 10),  
+    "reg_alpha": hp.uniform("reg_alpha", 0, 1),  
+    "reg_lambda": hp.uniform("reg_lambda", 0, 1),  
+}
+```
+
+### Run Optimization Algorithm
+
+```python
+# Run hyperopt
+trials = Trials()
+best_params = fmin(
+    fn=objective, 
+    space=space,      
+    algo=tpe.suggest, 
+    max_evals=200,
+    trials=trials,       
+    rstate=np.random.default_rng(808)  
+)
+```
+
+### Train the Model on the Best Parameters
+
+Now that we’ve optimized all of our relevant parameters, we can train our XGB model. We use `**best_params` to unpack the best parameters from before and initialize an `XGBRegressor` model.
+
+```python
+# Convert int hyperparameters to fix type error
+best_params["n_estimators"] = int(best_params["n_estimators"])
+best_params["max_depth"] = int(best_params["max_depth"])
+
+# Initialize best hyperopt model
+xgb_hyper = XGBRegressor(**best_params, eval_metric='rmse', random_state=808)
+
+# Fit model
+xgb_hyper.fit(X_scaled, y)
+
+# Predict on test data
+y_pred_hyper = xgb_hyper.predict(X_test_scaled)
+```
+
+```python
+# Get feature importance
+feat_imp_hyper = pd.DataFrame({'Feature': X_scaled.columns, 'Importance': xgb_hyper.feature_importances_})
+
+# Sort by importance
+feat_imp_hyper = feat_imp_hyper.sort_values(by="Importance", ascending=False)
+feat_imp_hyper
+```
+
+<table class="caption-top table table-sm table-striped small" data-quarto-postprocess="true" id="T_a1343">
+<thead>
+<tr>
+<th data-quarto-table-cell-role="th" id="T_a1343_level0_col0">Feature</th>
+<th data-quarto-table-cell-role="th" id="T_a1343_level0_col1">Importance</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td id="T_a1343_row0_col0">SiO3uM</td>
+<td id="T_a1343_row0_col1">0.439688</td>
+</tr>
+<tr>
+<td id="T_a1343_row1_col0">PO4uM</td>
+<td id="T_a1343_row1_col1">0.375247</td>
+</tr>
+<tr>
+<td id="T_a1343_row2_col0">R_Oxy_micromol.Kg</td>
+<td id="T_a1343_row2_col1">0.099113</td>
+</tr>
+<tr>
+<td id="T_a1343_row3_col0">R_Sal</td>
+<td id="T_a1343_row3_col1">0.032475</td>
+</tr>
+<tr>
+<td id="T_a1343_row4_col0">NO3uM</td>
+<td id="T_a1343_row4_col1">0.017117</td>
+</tr>
+<tr>
+<td id="T_a1343_row5_col0">TA1.x</td>
+<td id="T_a1343_row5_col1">0.015256</td>
+</tr>
+<tr>
+<td id="T_a1343_row6_col0">Salinity1</td>
+<td id="T_a1343_row6_col1">0.012926</td>
+</tr>
+<tr>
+<td id="T_a1343_row7_col0">R_Depth</td>
+<td id="T_a1343_row7_col1">0.004667</td>
+</tr>
+<tr>
+<td id="T_a1343_row8_col0">NO2uM</td>
+<td id="T_a1343_row8_col1">0.000781</td>
+</tr>
+<tr>
+<td id="T_a1343_row9_col0">Temperature_degC</td>
+<td id="T_a1343_row9_col1">0.000693</td>
+</tr>
+<tr>
+<td id="T_a1343_row10_col0">R_TEMP</td>
+<td id="T_a1343_row10_col1">0.000607</td>
+</tr>
+<tr>
+<td id="T_a1343_row11_col0">R_DYNHT</td>
+<td id="T_a1343_row11_col1">0.000389</td>
+</tr>
+<tr>
+<td id="T_a1343_row12_col0">NH3uM</td>
+<td id="T_a1343_row12_col1">0.000282</td>
+</tr>
+<tr>
+<td id="T_a1343_row13_col0">Lat_Dec</td>
+<td id="T_a1343_row13_col1">0.000281</td>
+</tr>
+<tr>
+<td id="T_a1343_row14_col0">Lon_Dec</td>
+<td id="T_a1343_row14_col1">0.000257</td>
+</tr>
+<tr>
+<td id="T_a1343_row15_col0">R_Nuts</td>
+<td id="T_a1343_row15_col1">0.000222</td>
+</tr>
+</tbody>
+</table>
+
+Now that we’ve generated our predictions on the test data, all we need to do is add those to their associated ID’s in the `test_df` and export to csv for submission to the competition.
+
+```python
+# Add DIC to test dataset
+test_df['DIC'] = y_pred_hyper
+submission = test_df[['id', 'DIC']]
+submission.head()
+```
+
+<table class="dataframe caption-top table table-sm table-striped small" data-border="1" data-quarto-postprocess="true">
+<thead>
+<tr>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">id</th>
+<th data-quarto-table-cell-role="th">DIC</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td data-quarto-table-cell-role="th">0</td>
+<td>1455</td>
+<td>2170.5910</td>
+</tr>
+<tr>
+<td data-quarto-table-cell-role="th">1</td>
+<td>1456</td>
+<td>2194.9880</td>
+</tr>
+<tr>
+<td data-quarto-table-cell-role="th">2</td>
+<td>1457</td>
+<td>2326.0432</td>
+</tr>
+<tr>
+<td data-quarto-table-cell-role="th">3</td>
+<td>1458</td>
+<td>1991.1729</td>
+</tr>
+<tr>
+<td data-quarto-table-cell-role="th">4</td>
+<td>1459</td>
+<td>2147.3965</td>
+</tr>
+</tbody>
+</table>
+
+```python
+# Export for submission
+submission.to_csv('submission.csv', index=False)
+```
+
+And just like that, you can have a competition-winning machine learning model! A very big thanks to Professor Robbins for his guidance in this course, Dr. Satterthwaite for her wonderful guest lecture, and [Annie Adams](https://github.com/annieradams) for her assistance all quarter.
+
+## References
+
+## Citation
+
+BibTeX citation:
+```bibtex
+@online{oyler2025,
+  author = {Oyler, Haylee},
+  title = {So {You} {Want} to {Win} a {Kaggle} {Competition?}},
+  date = {2025-03-30},
+  url = {https://haylee360.github.io/posts/2025-03-30-kaggle/},
+  langid = {en}
+}
+
+```
+
+For attribution, please cite this work as:Oyler H. So You Want to Win a Kaggle
+Competition? 30 Mar 2025. Available: https://haylee360.github.io/posts/2025-03-30-kaggle/
+
+## References
+
+<div id="ref-Widerhold1992" style="margin-bottom: 0.75rem;">1. Wiederhold G, McCarthy J. Arthur samuel: Pioneer in machine learning. IBM Journal of Research and Development. 1992;36: 329–331. doi: [10.1147/rd.363.0329](https://doi.org/10.1147/rd.363.0329)</div>
+<div id="ref-PintoCoehlo2023" style="margin-bottom: 0.75rem;">2. Pinto-Coelho L. How artificial intelligence is shaping medical imaging technology: A survey of innovations and applications. Bioengineering. 2023;10: 1435. doi: [10.3390/bioengineering10121435](https://doi.org/10.3390/bioengineering10121435)</div>
+<div id="ref-Dada2019" style="margin-bottom: 0.75rem;">3. Dada EG, Bassi JS, Chiroma H, Abdulhamid SM, Adetunmbi AO, Ajibuwa OE. Machine learning for email spam filtering: Review, approaches and open research problems. Heliyon. 2019;5: e01802. doi: [https://doi.org/10.1016/j.heliyon.2019.e01802](https://doi.org/10.1016/j.heliyon.2019.e01802)</div>
+<div id="ref-Kwiatkowski2023" style="margin-bottom: 0.75rem;">4. Kwiatkowski R. Gradient descent algorithm - a deep dive. Medium. TDS Archive; 2023. Available: [https://medium.com/data-science/gradient-descent-algorithm-a-deep-dive-cf04e8115f21](https://medium.com/data-science/gradient-descent-algorithm-a-deep-dive-cf04e8115f21)</div>
+<div id="ref-Google2024" style="margin-bottom: 0.75rem;">5. Google; 2024. Available: [https://developers.google.com/machine-learning/crash-course/linear-regression/gradient-descent](https://developers.google.com/machine-learning/crash-course/linear-regression/gradient-descent)</div>
+<div id="ref-IBM2025" style="margin-bottom: 0.75rem;">6. IBM. What is gradient descent? 2025. Available: [https://www.ibm.com/think/topics/gradient-descent](https://www.ibm.com/think/topics/gradient-descent)</div>
+<div id="ref-Banerjee2020" style="margin-bottom: 0.75rem;">7. Banerjee P. Bayesian optimization using hyperopt. Kaggle; 2020. Available: [https://www.kaggle.com/code/prashant111/bayesian-optimization-using-hyperopt](https://www.kaggle.com/code/prashant111/bayesian-optimization-using-hyperopt)</div>
+<div id="ref-Noguiera2014" style="margin-bottom: 0.75rem;">8. Nogueira F. Bayesian Optimization : Open source constrained global optimization tool for Python . 2014--. Available: [https://github.com/bayesian-optimization/BayesianOptimization]( https://github.com/bayesian-optimization/BayesianOptimization)</div>
