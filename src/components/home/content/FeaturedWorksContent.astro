@@ -9,7 +9,9 @@ import Button from "../../common/Button.astro";
 const featuredProjects: ProjectDataItem[] = allProjectsData.filter(
   (project) => project.isFeatured,
 );
-const projectsUrl = "/projects";
+// const projectsUrl = "/projects";
+
+const projectsUrl = "/blog";
 
 function slugify(text: string): string {
   return text

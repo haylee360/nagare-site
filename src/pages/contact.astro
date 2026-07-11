@@ -5,23 +5,42 @@ import { Icon } from "astro-icon/components";
 
 <SubPageLayout title="Contact">
   <div class="contact-content">
-    <p class="intro-text">Feel free to reach out!</p>
-    <p class="intro-text">Here's some description about how to contact me.</p>
+    <p class="intro-text">
+      Please feel free to reach out with any questions, collaborations, or
+      opportunities! I am always interested in learning from different
+      professionals working in community science, ecology, regional organizing,
+      and more.
+    </p>
+
+    <p class="intro-text">
+      I am also a strong advocate for mentorship and communtiy building in
+      scientific spaces. If you are a prospective student or working
+      professional looking for mentorship, I encourage you to reach out via the
+      email below.
+    </p>
 
     <h3 class="contact-section-title">Contact Information</h3>
-    <p class="section-description">This is a list of my contact information.</p>
     <ul class="contact-list">
       <li>
         <Icon name="ri:mail-line" class="contact-icon" />
-        <a href="javascript:alert('link to your email')">example@example.com</a>
+        <a href="mailto:hayleeoyler@proton.me">hayleeoyler@proton.me</a>
       </li>
       <li>
         <Icon name="ri:github-line" class="contact-icon" />
-        <a href="javascript:alert('link to your github')">github.com/example</a>
+        <a
+          href="https://github.com/haylee360"
+          target="_blank"
+          rel="noopener noreferrer">github.com/haylee360</a
+        >
       </li>
       <li>
-        <Icon name="ri:planet-line" class="contact-icon" />
-        <a href="javascript:alert('link to your website')">example.com</a>
+        <Icon name="ri:linkedin-box-line" class="contact-icon" />
+        <a
+          href="https://www.linkedin.com/in/haylee-oyler/"
+          target="_blank"
+          rel="noopener noreferrer"
+          ">linkedin.com/in/haylee-oyler</a
+        >
       </li>
     </ul>
   </div>
@@ -34,7 +53,7 @@ import { Icon } from "astro-icon/components";
 
   .intro-text {
     margin-bottom: 1rem;
-    font-size: 1.2em;
+    font-size: 1.1em;
     line-height: 1.7;
     color: var(--text-muted);
   }

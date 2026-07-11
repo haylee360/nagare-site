@@ -24,7 +24,7 @@ const tags = Array.from(tagMap.entries()).sort((a, b) => b[1] - a[1]);
   <main class="blog-listing layout-grid">
     <header class="blog-header">
       <h1>Blog</h1>
-      <p class="lead">Latest posts and updates.</p>
+      <p class="lead">Explore my latest posts and projects</p>
     </header>
 
     <section class="cards-column">
@@ -100,6 +100,7 @@ const tags = Array.from(tagMap.entries()).sort((a, b) => b[1] - a[1]);
 
   .blog-header {
     grid-column: 1 / -1;
+    font-size: 1.3em;
   }
   .posts-grid {
     display: grid;
@@ -116,7 +117,8 @@ const tags = Array.from(tagMap.entries()).sort((a, b) => b[1] - a[1]);
     border: 1px solid var(--card-border-color);
     padding: 1rem;
     border-radius: 8px;
-    background: var(--bg-color);
+    background: var(--bg-color)
+    opacity: 0.9;
   }
   .card-link {
     color: inherit;
